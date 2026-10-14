@@ -311,7 +311,12 @@ async function enableMagnetometer() {
     const sensor = new Mag({ frequency: 30 });
     sensor.addEventListener("reading", () => applyReading(sensor.x, sensor.y, sensor.z));
     sensor.addEventListener("error", (e) => {
-      setSensorMsg("Sensor error: " + (e.error?.name || "unknown") + " — " + (e.error?.message || "cannot read field"), "err");
+      const name = e.error?.name || "unknown";
+      if (name === "NotReadableError") {
+        setSensorMsg("No readable magnetometer on this device — the API exists but there is no sensor hardware (typical for laptops/desktops/Chromebooks). Use the touch pad or Simulate instead.", "err");
+      } else {
+        setSensorMsg("Sensor error: " + name + " — " + (e.error?.message || "cannot read field"), "err");
+      }
     });
     sensor.start();
     state.sensorLive = true; state.simulating = false;
@@ -319,7 +324,11 @@ async function enableMagnetometer() {
     els.sensorBtn.textContent = "🧲 sensor live ✓ (tap to restart)";
     setSensorMsg("Live ✓ — now press ◎ calibrate away from magnets/metal, then play.", "live");
   } catch (err) {
-    setSensorMsg(`Cannot start sensor (${err?.name || "Error"}): ${err?.message || err}. Try Serve over https, or use Simulate.`, "err");
+    if (err?.name === "NotReadableError") {
+      setSensorMsg("No readable magnetometer on this device (common on laptops/desktops/Chromebooks). Magnetic mode needs Chrome/Edge on Android with sensor hardware — use the touch pad or Simulate here.", "err");
+    } else {
+      setSensorMsg(`Cannot start sensor (${err?.name || "Error"}): ${err?.message || err}. Try Serve over https, or use Simulate.`, "err");
+    }
   }
 }
 
