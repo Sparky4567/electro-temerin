@@ -71,10 +71,7 @@ const Audio2 = {
   delay: null, fb: null, wet: null, analyser: null,
 
   async start() {
-    if (this.ctx) {
-      if (this.ctx.state === "suspended") await this.ctx.resume();
-      return;
-    }
+    if (this.ctx) return;
     const Ctx = window.AudioContext || window.webkitAudioContext;
     this.ctx = new Ctx({ latencyHint: "interactive" });
     const c = this.ctx;
@@ -200,12 +197,8 @@ function tick() {
 
   if (state.audioOn && Audio2.ctx) {
     Audio2.setTargetFreq(freq);
-    const gate = els.drone.checked || state.gateHeld || state.padActive;
+    const gate = els.drone.checked || state.gateHeld || state.padActive || state.simulating;
     Audio2.setGate(gate);
-    if (!els.drone.checked && state.mode === "mag" && !state.padActive) {
-      // in mag mode without drone, require the hold button (gateHeld)
-      Audio2.setGate(state.gateHeld);
-    }
     // touch-mode volume from pad X
     if (state.padActive) Audio2.master.gain.setTargetAtTime(0.05 + state.padVol01 * 0.95, Audio2.ctx.currentTime, 0.03);
     else Audio2.master.gain.setTargetAtTime(Number(els.vol.value), Audio2.ctx.currentTime, 0.03);
@@ -368,12 +361,14 @@ els.simBtn.addEventListener("click", () => {
 
 els.powerBtn.addEventListener("click", async () => {
   await Audio2.start();
-  state.audioOn = true;
-  els.powerBtn.textContent = "⏸ audio on — tap to suspend";
-  els.powerBtn.onclick = () => {
-    if (Audio2.ctx.state === "running") { Audio2.ctx.suspend(); els.powerBtn.textContent = "▶ audio suspended — tap to resume"; }
-    else { Audio2.ctx.resume(); els.powerBtn.textContent = "⏸ audio on — tap to suspend"; }
-  };
+  if (!state.audioOn) {
+    if (Audio2.ctx.state === "suspended") await Audio2.ctx.resume();
+    state.audioOn = true;
+    els.powerBtn.textContent = "⏸ audio on — tap to suspend";
+    return;
+  }
+  if (Audio2.ctx.state === "running") { await Audio2.ctx.suspend(); els.powerBtn.textContent = "▶ audio suspended — tap to resume"; }
+  else { await Audio2.ctx.resume(); els.powerBtn.textContent = "⏸ audio on — tap to suspend"; }
 });
 
 // gate button (hold to sound in mag mode)

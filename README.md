@@ -85,8 +85,12 @@ The instrument is a pure static site — `public/` is the publish directory and
 | Setting | Value |
 |---|---|
 | Framework preset | None |
-| Build command | *(empty)* |
+| Build command | *(empty — no install or build needed)* |
 | Build output directory | `public` |
+
+`bun.lock` is intentionally not committed (dev-server only): it avoids
+Bun-version skew between local dev and the Pages build image breaking
+the automatic dependency install.
 
 **CLI:**
 
