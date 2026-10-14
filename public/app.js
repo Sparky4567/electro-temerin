@@ -308,28 +308,94 @@ async function enableMagnetometer() {
       }
     } catch { /* ignore — permission name unsupported in some builds */ }
     const Mag = window.Magnetometer;
-    const sensor = new Mag({ frequency: 30 });
-    sensor.addEventListener("reading", () => applyReading(sensor.x, sensor.y, sensor.z));
+    // Some chips (e.g. several Xiaomi models) reject specific rate hints or
+    // need a moment before the first reading — try configs in order.
+    const configs = [{ frequency: 30 }, {}, { frequency: 5 }];
+    let sensor = null, lastErr = null;
+    setSensorMsg("Starting sensor… hold the phone still.", "");
+    for (const cfg of configs) {
+      try {
+        sensor = await startSensorOnce(Mag, cfg);
+        lastErr = null;
+        break;
+      } catch (err) {
+        lastErr = err;
+        sensor = null;
+        if (err?.name !== "NotReadableError") break; // retry only unreadable configs
+      }
+    }
+    if (!sensor) throw lastErr || new Error("sensor failed to start");
     sensor.addEventListener("error", (e) => {
       const name = e.error?.name || "unknown";
       if (name === "NotReadableError") {
-        setSensorMsg("Magnetometer not readable on this device — it may have no compass sensor (many budget phones, laptops and Chromebooks don't) or the system won't share it. Quick check: if no compass app works on this phone, it has no magnetometer. Use the touch pad or Simulate instead.", "err");
+        state.sensorLive = false;
+        els.sensorBtn.textContent = "🧲 enable magnetometer";
+        setSensorMsg("Sensor stopped delivering readings. Wave the phone in a figure-8 (wakes/calibrates the compass), then tap enable again — or use the touch pad / Simulate.", "err");
       } else {
         setSensorMsg("Sensor error: " + name + " — " + (e.error?.message || "cannot read field"), "err");
       }
     });
-    sensor.start();
     state.sensorLive = true; state.simulating = false;
     els.calBtn.disabled = false;
     els.sensorBtn.textContent = "🧲 sensor live ✓ (tap to restart)";
     setSensorMsg("Live ✓ — now press ◎ calibrate away from magnets/metal, then play.", "live");
   } catch (err) {
     if (err?.name === "NotReadableError") {
-      setSensorMsg("Magnetometer not readable here. Magnetic mode needs Chrome/Edge on Android running on a phone with compass hardware — otherwise the touch pad and Simulate are the instrument.", "err");
+      setSensorMsg("Magnetometer not readable here, even though this browser supports it. Try: wave the phone in a figure-8, update Chrome, close other sensor apps — and check site settings → Motion sensors → Allow. Otherwise the touch pad and Simulate are the instrument on this phone.", "err");
+    } else if (err?.name === "SecurityError" || err?.name === "NotAllowedError") {
+      setSensorMsg("Sensor blocked by the browser. Check site settings (lock icon → Site settings → Motion sensors → Allow), then tap enable again.", "err");
     } else {
       setSensorMsg(`Cannot start sensor (${err?.name || "Error"}): ${err?.message || err}. Try Serve over https, or use Simulate.`, "err");
     }
   }
+}
+
+// Start a Magnetometer with one config; resolves on the first real reading,
+// rejects on sensor error or when no reading arrives in time.
+function startSensorOnce(Mag, cfg) {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    let sensor;
+    try {
+      sensor = new Mag(cfg);
+    } catch (err) { reject(err); return; }
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      try { sensor.stop(); } catch { /* ignore */ }
+      reject(new DOMException("no readings within 3s", "NotReadableError"));
+    }, 3000);
+    function cleanup() {
+      clearTimeout(timer);
+      sensor.removeEventListener("reading", onReading);
+      sensor.removeEventListener("error", onError);
+    }
+    function onReading() {
+      applyReading(sensor.x, sensor.y, sensor.z);
+      if (settled) return; // keep feeding readings after resolve
+      settled = true;
+      cleanup();
+      resolve(sensor);
+    }
+    function onError(e) {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      try { sensor.stop(); } catch { /* ignore */ }
+      reject(e.error || new DOMException("cannot read field", "NotReadableError"));
+    }
+    sensor.addEventListener("reading", onReading);
+    sensor.addEventListener("error", onError);
+    try {
+      sensor.start();
+    } catch (err) {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(err);
+    }
+  });
 }
 
 // ---------- UI wiring ----------

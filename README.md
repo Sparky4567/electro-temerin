@@ -62,6 +62,14 @@ bun run dev
 A secure context (`https://` or `http://localhost`) is **required** for the sensor API.
 The status pill in the header tells you exactly where you stand.
 
+**Sensor troubleshooting** (Chrome Android, API present but enable fails):
+- wave the phone in a figure-8 — wakes/calibrates the compass chip;
+- update Chrome, close other apps using the sensor;
+- check site settings (lock icon → Site settings → Motion sensors → Allow);
+- some Xiaomi/MIUI devices reject certain sensor rates — the app retries
+  configs automatically, but if all fail the touch pad + simulate are the
+  instrument on that phone.
+
 ## Install as an app (PWA)
 
 electro-temerin is an installable, offline-capable PWA:
