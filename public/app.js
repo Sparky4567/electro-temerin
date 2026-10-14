@@ -106,6 +106,7 @@ const Audio2 = {
     this.fb = c.createGain(); this.fb.gain.value = 0.32;
     this.wet = c.createGain(); this.wet.gain.value = Number(els.echo.value);
     this.voiceGain.connect(this.filter);
+    this.osc.connect(this.voiceGain);
     this.filter.connect(this.master);
     this.filter.connect(this.delay);
     this.delay.connect(this.fb).connect(this.delay);

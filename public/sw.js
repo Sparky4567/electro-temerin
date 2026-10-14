@@ -1,5 +1,5 @@
 /* electro-temerin service worker — offline-first app shell */
-const CACHE = "electro-temerin-v1";
+const CACHE = "electro-temerin-v2";
 const ASSETS = [
   "/",
   "/index.html",
