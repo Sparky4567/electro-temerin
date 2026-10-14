@@ -313,7 +313,7 @@ async function enableMagnetometer() {
     sensor.addEventListener("error", (e) => {
       const name = e.error?.name || "unknown";
       if (name === "NotReadableError") {
-        setSensorMsg("No readable magnetometer on this device — the API exists but there is no sensor hardware (typical for laptops/desktops/Chromebooks). Use the touch pad or Simulate instead.", "err");
+        setSensorMsg("Magnetometer not readable on this device — it may have no compass sensor (many budget phones, laptops and Chromebooks don't) or the system won't share it. Quick check: if no compass app works on this phone, it has no magnetometer. Use the touch pad or Simulate instead.", "err");
       } else {
         setSensorMsg("Sensor error: " + name + " — " + (e.error?.message || "cannot read field"), "err");
       }
@@ -325,7 +325,7 @@ async function enableMagnetometer() {
     setSensorMsg("Live ✓ — now press ◎ calibrate away from magnets/metal, then play.", "live");
   } catch (err) {
     if (err?.name === "NotReadableError") {
-      setSensorMsg("No readable magnetometer on this device (common on laptops/desktops/Chromebooks). Magnetic mode needs Chrome/Edge on Android with sensor hardware — use the touch pad or Simulate here.", "err");
+      setSensorMsg("Magnetometer not readable here. Magnetic mode needs Chrome/Edge on Android running on a phone with compass hardware — otherwise the touch pad and Simulate are the instrument.", "err");
     } else {
       setSensorMsg(`Cannot start sensor (${err?.name || "Error"}): ${err?.message || err}. Try Serve over https, or use Simulate.`, "err");
     }
