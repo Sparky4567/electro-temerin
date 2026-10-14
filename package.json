@@ -1,0 +1,17 @@
+{
+  "name": "electro-temerin",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "bun run index.ts",
+    "deploy": "wrangler pages deploy public --project-name electro-temerin"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  }
+}

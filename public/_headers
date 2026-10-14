@@ -1,0 +1,11 @@
+# Cloudflare Pages headers.
+# `public/` is the Pages publish directory — this file is consumed
+# automatically on deploy. Kept in parity with the dev server (index.ts).
+
+/index.html
+  Cache-Control: no-cache
+
+/*
+  Permissions-Policy: magnetometer=*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin

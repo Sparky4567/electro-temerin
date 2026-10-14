@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>electro-temerin — magnetic theremin</title>
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="orb" id="orb" aria-hidden="true"></div>
+      <div>
+        <h1>electro-temerin</h1>
+        <p class="sub">magnetometer theremin · generic sensor api + webaudio</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div id="ctxPill" class="pill warn" title="Magnetometer requires a secure context">checking…</div>
+      <button id="powerBtn" class="btn primary">▶ start audio</button>
+    </div>
+  </header>
+
+  <section class="status-grid">
+    <div class="card">
+      <div class="card-title">magnetic field</div>
+      <div class="note-readout">
+        <div id="noteName" class="note">–</div>
+        <div class="freq"><span id="freqVal">0.0</span> Hz · <span id="midiVal">–</span></div>
+      </div>
+      <div class="meter-rows">
+        <div class="meter-row"><label>X</label><div class="meter"><div id="barX" class="fill x"></div></div><span id="valX" class="num">0.0</span></div>
+        <div class="meter-row"><label>Y</label><div class="meter"><div id="barY" class="fill y"></div></div><span id="valY" class="num">0.0</span></div>
+        <div class="meter-row"><label>Z</label><div class="meter"><div id="barZ" class="fill z"></div></div><span id="valZ" class="num">0.0</span></div>
+        <div class="meter-row total"><label>|B|</label><div class="meter"><div id="barM" class="fill m"></div></div><span id="valM" class="num">0.0 µT</span></div>
+      </div>
+      <div class="cal-row">
+        <span class="muted">baseline <b id="baseVal">—</b></span>
+        <span class="muted">Δ <b id="deltaVal">0.0 µT</b></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">sensor</div>
+      <div id="sensorStatus" class="sensor-status">idle — press “enable magnetometer”</div>
+      <div class="btn-row">
+        <button id="sensorBtn" class="btn">🧲 enable magnetometer</button>
+        <button id="calBtn" class="btn" disabled>◎ calibrate</button>
+        <button id="simBtn" class="btn ghost" title="Simulate a moving magnet for desktop testing">simulate</button>
+      </div>
+      <div class="ctl-grid">
+        <label>pitch source
+          <select id="pitchSource">
+            <option value="mag" selected>Δ |B| — field strength</option>
+            <option value="z">Δ Z axis</option>
+            <option value="x">Δ X axis</option>
+            <option value="y">Δ Y axis</option>
+          </select>
+        </label>
+        <label>polarity
+          <select id="polarity">
+            <option value="1" selected>magnet closer = higher</option>
+            <option value="-1">magnet closer = lower</option>
+          </select>
+        </label>
+        <label>range µT <span id="rangeVal" class="val">120</span>
+          <input id="range" type="range" min="20" max="400" value="120" />
+        </label>
+        <label>smoothing <span id="smoothVal" class="val">0.25</span>
+          <input id="smooth" type="range" min="0.01" max="0.9" step="0.01" value="0.25" />
+        </label>
+      </div>
+      <p class="hint">Play with a fridge magnet: calibrate away from metal, then bring the magnet toward / away from the phone. Earth field ≈ 25–65 µT — a magnet easily adds 100+ µT.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">voice</div>
+      <div class="ctl-grid">
+        <label>waveform
+          <select id="wave">
+            <option value="sine" selected>sine — pure theremin</option>
+            <option value="triangle">triangle</option>
+            <option value="sawtooth">sawtooth — electro</option>
+            <option value="square">square — harsh</option>
+          </select>
+        </label>
+        <label>scale
+          <select id="scale">
+            <option value="off" selected>off — glissando</option>
+            <option value="chromatic">chromatic</option>
+            <option value="major">major</option>
+            <option value="minor">natural minor</option>
+            <option value="pentaM">major pentatonic</option>
+            <option value="pentaMin">minor pentatonic</option>
+          </select>
+        </label>
+        <label>root <span id="rootVal" class="val">C3 · 48</span>
+          <input id="root" type="range" min="36" max="60" value="48" />
+        </label>
+        <label>octaves <span id="octVal" class="val">3</span>
+          <input id="octaves" type="range" min="1" max="5" value="3" />
+        </label>
+        <label>glide <span id="glideVal" class="val">0.06s</span>
+          <input id="glide" type="range" min="0.01" max="0.4" step="0.01" value="0.06" />
+        </label>
+        <label>vibrato <span id="vibVal" class="val">0.0</span>
+          <input id="vib" type="range" min="0" max="40" value="0" />
+        </label>
+        <label>cutoff <span id="cutVal" class="val">6000</span>
+          <input id="cutoff" type="range" min="300" max="12000" value="6000" />
+        </label>
+        <label>echo <span id="echoVal" class="val">0.25</span>
+          <input id="echo" type="range" min="0" max="0.8" step="0.01" value="0.25" />
+        </label>
+      </div>
+      <div class="btn-row">
+        <button id="gateBtn" class="btn big">hold to sound ▮</button>
+        <label class="check"><input id="drone" type="checkbox" /> drone (always on)</label>
+      </div>
+      <label class="vol">volume <span id="volVal" class="val">0.7</span>
+        <input id="vol" type="range" min="0" max="1" step="0.01" value="0.7" />
+      </label>
+    </div>
+  </section>
+
+  <section class="card pad-card">
+    <div class="pad-head">
+      <div class="card-title">touch pad <span class="muted">— fallback instrument · X = volume, Y = pitch · works with mouse</span></div>
+      <div class="seg">
+        <button id="modeMag" class="seg-btn active">🧲 magnetic</button>
+        <button id="modeTouch" class="seg-btn">👆 touch</button>
+      </div>
+    </div>
+    <div id="pad" class="pad"><div id="padDot" class="dot"></div>
+      <div class="pad-label">drag / move mouse here to play — overrides magnetometer while touching</div>
+    </div>
+    <canvas id="scope" width="900" height="140"></canvas>
+  </section>
+
+  <footer class="foot">
+    <span>needs <b>https / localhost</b> + <b>chrome / edge android</b> for <code>new Magnetometer()</code> · iOS &amp; desktop use touch pad · keep magnets away from pacemakers</span>
+    <span class="muted">bun serve · webaudio · generic sensor api</span>
+  </footer>
+</div>
+<script src="/app.js" defer></script>
+</body>
+</html>
