@@ -30,7 +30,8 @@ no tracking.
 - 👆 **Touch-pad fallback** — X = volume, Y = pitch; mouse-compatible, overrides the sensor while touching
 - 🔬 **Live readouts** — X/Y/Z/|B| bars, baseline + ΔµT, note name + Hz + MIDI, waveform scope
 - 🤖 **Simulate mode** — self-playing virtual magnet for desktop testing
-- 📡 **Zero network calls** — the frontend is fully offline-capable once loaded
+- 📲 **Installable PWA** — standalone app with offline-first service worker; airplane-mode ready
+- 📡 **Zero network calls** — the frontend is fully self-contained once loaded
 
 ## Quickstart
 
@@ -61,6 +62,19 @@ bun run dev
 A secure context (`https://` or `http://localhost`) is **required** for the sensor API.
 The status pill in the header tells you exactly where you stand.
 
+## Install as an app (PWA)
+
+electro-temerin is an installable, offline-capable PWA:
+
+- **Install:** open the hosted site in Chrome/Edge on Android (or desktop Chrome) →
+  ⋮ menu → *Install app* / *Add to Home screen*. It launches standalone, no browser chrome.
+- **Offline:** a service worker (`public/sw.js`) precaches the full app shell
+  (HTML, CSS, JS, manifest, icons) on first visit with a cache-first strategy —
+  the instrument keeps working with no connection. Only same-origin assets are
+  cached; the app makes no third-party requests at all.
+- **iOS:** Safari → Share → *Add to Home Screen* (standalone display, touch-icon included;
+  note the magnetometer itself is unavailable on iOS — the touch pad is the instrument there).
+
 ## Deploy to Cloudflare Pages
 
 The instrument is a pure static site — `public/` is the publish directory and
@@ -90,9 +104,12 @@ equivalent header locally). `/api/health` exists only on the dev server for debu
 electro-temerin/
 ├── index.ts            # Bun dev server (static public/ + /api/health)
 ├── public/
-│   ├── index.html      # UI
+│   ├── index.html      # UI (+ PWA meta/manifest links)
 │   ├── app.js          # sensor + audio engine (vanilla JS, no deps)
 │   ├── styles.css      # neon-dark theme
+│   ├── sw.js           # offline-first service worker
+│   ├── manifest.webmanifest
+│   ├── icons/          # 192/512 any + maskable + apple-touch + favicon
 │   └── _headers        # Cloudflare Pages headers
 ├── LICENSE             # MIT
 └── package.json

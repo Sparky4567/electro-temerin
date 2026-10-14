@@ -439,3 +439,12 @@ window.addEventListener("keyup", (e) => {
 });
 
 requestAnimationFrame(tick);
+
+// PWA: offline-first service worker (same-origin app shell only).
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      // Offline support unavailable — app still runs.
+    });
+  });
+}
