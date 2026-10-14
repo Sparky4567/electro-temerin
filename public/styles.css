@@ -69,7 +69,7 @@ input[type="range"] { accent-color: var(--acc); }
 .seg { display: flex; background: #080b13; border: 1px solid var(--line); border-radius: 99px; padding: 3px; }
 .seg-btn { border: none; background: transparent; color: var(--muted); padding: 6px 12px; border-radius: 99px; cursor: pointer; font-size: 13px; }
 .seg-btn.active { background: #232d52; color: white; }
-.pad { position: relative; height: 220px; border-radius: 12px; margin-top: 10px; border: 1px solid #2b3760; background: linear-gradient(90deg, #0a0f1ccc, #101a33cc), repeating-linear-gradient(90deg, transparent 0 39px, #ffffff10 39px 40px), repeating-linear-gradient(0deg, transparent 0 27px, #ffffff10 27px 28px); cursor: crosshair; touch-action: none; overflow: hidden; }
+.pad { position: relative; height: 220px; border-radius: 12px; margin-top: 10px; border: 1px solid #2b3760; background: linear-gradient(90deg, #0a0f1ccc, #101a33cc), repeating-linear-gradient(90deg, transparent 0 39px, #ffffff10 39px 40px), repeating-linear-gradient(0deg, transparent 0 27px, #ffffff10 27px 28px); cursor: crosshair; touch-action: none; overscroll-behavior: contain; user-select: none; -webkit-user-select: none; overflow: hidden; }
 .pad-label { position: absolute; inset: auto 0 8px; text-align: center; color: #aeb7d2; font-size: 12px; pointer-events: none; }
 .dot { position: absolute; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, var(--acc) 45%, transparent 72%); box-shadow: 0 0 18px var(--acc); transform: translate(-50%, -50%); left: 50%; top: 50%; pointer-events: none; }
 #scope { width: 100%; height: 140px; margin-top: 10px; background: #05070c; border: 1px solid #1b2338; border-radius: 12px; }

@@ -27,7 +27,7 @@ no tracking.
 
 - 🧲 **Magnetometer pitch** — field-strength (`Δ|B|`) or single-axis (`ΔX/ΔY/ΔZ`) sources, polarity flip, µT range and smoothing controls
 - 🎹 **Musical voice** — 4 waveforms, glissando or 5 quantized scales (chromatic, major, natural minor, major/minor pentatonic), root + octave span, portamento glide, vibrato LFO, lowpass cutoff, echo
-- 👆 **Touch-pad fallback** — X = volume, Y = pitch; mouse-compatible, overrides the sensor while touching
+- 👆 **Touch-pad fallback** — X = volume, Y = pitch; mouse / trackpad / touchscreen compatible, overrides the sensor while touching. Hover + two-finger scroll plays too (vertical = pitch, horizontal or Shift+scroll = volume) without scrolling the page — Chromebook-friendly
 - 🔬 **Live readouts** — X/Y/Z/|B| bars, baseline + ΔµT, note name + Hz + MIDI, waveform scope
 - 🤖 **Simulate mode** — self-playing virtual magnet for desktop testing
 - 📲 **Installable PWA** — standalone app with offline-first service worker; airplane-mode ready
@@ -50,7 +50,7 @@ bun run dev
 1. Press **▶ start audio** (browsers require a user gesture for audio).
 2. Press **🧲 enable magnetometer**, then **◎ calibrate** while holding the phone still, away from magnets and metal.
 3. Hold **“hold to sound”** (or tick **drone**) and move a fridge magnet toward / away from the phone.
-4. No sensor? Drag on the **touch pad**, press **simulate**, or use ↑/↓ + space.
+4. No sensor? Drag on the **touch pad**, hover + two-finger scroll over it (Chromebook trackpads: vertical = pitch, horizontal / Shift+scroll = volume), press **simulate**, or use ↑/↓ + space.
 
 ## Browser support
 

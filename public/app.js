@@ -401,10 +401,25 @@ function padSet(e) {
   els.padDot.style.left = (x * 100) + "%";
   els.padDot.style.top = (y * 100) + "%";
 }
-els.pad.addEventListener("pointerdown", (e) => { state.padActive = true; els.pad.setPointerCapture(e.pointerId); padSet(e); });
-els.pad.addEventListener("pointermove", (e) => { if (state.padActive) padSet(e); });
+els.pad.addEventListener("pointerdown", (e) => { e.preventDefault(); state.padActive = true; els.pad.setPointerCapture(e.pointerId); padSet(e); });
+els.pad.addEventListener("pointermove", (e) => { if (state.padActive) { e.preventDefault(); padSet(e); } });
 els.pad.addEventListener("pointerup", () => { state.padActive = false; });
 els.pad.addEventListener("pointercancel", () => { state.padActive = false; });
+// Chromebook trackpads (and mouse wheels) fire wheel, not drag —
+// capture it so two-finger scroll plays instead of scrolling the page.
+let wheelHold = 0;
+els.pad.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  state.padActive = true;
+  state.padPitch01 = Math.min(1, Math.max(0, state.padPitch01 + e.deltaY * 0.0012));
+  state.padVol01 = Math.min(1, Math.max(0, state.padVol01 - e.deltaX * 0.0012 + (e.shiftKey ? e.deltaY * 0.0012 : 0)));
+  const r = els.pad.getBoundingClientRect();
+  void r;
+  els.padDot.style.left = (state.padVol01 * 100) + "%";
+  els.padDot.style.top = (state.padPitch01 * 100) + "%";
+  clearTimeout(wheelHold);
+  wheelHold = setTimeout(() => { state.padActive = false; }, 900);
+}, { passive: false });
 
 // control readouts
 const bind = (input, out, fmt) => {
